@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Voice Transcribe</string>
+    <string name="transcribe_share_label">Transcribe</string>
+
+    <string name="main_instructions">This app has no screens of its own yet.\n\nTo test it: open WhatsApp, long-press a voice message, tap Share, then pick "Transcribe" from the share sheet.</string>
+
+    <string name="status_transcribing">Transcribing…</string>
+    <string name="status_done">Transcript</string>
+    <string name="status_error">Something went wrong</string>
+
+    <string name="action_copy">Copy</string>
+    <string name="action_send_back">Send to WhatsApp</string>
+
+    <string name="copied_toast">Transcript copied</string>
+    <string name="whatsapp_not_found">WhatsApp isn\'t installed</string>
+    <string name="error_no_audio">No audio was shared</string>
+    <string name="error_generic">Transcription failed. Try again.</string>
+</resources>

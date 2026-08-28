@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="backgroundLight">#FAFAFA</color>
+    <color name="cardBackground">#FFFFFF</color>
+    <color name="textPrimary">#1A1A1A</color>
+    <color name="textSecondary">#6B6B6B</color>
+    <color name="accent">#25D366</color>
+    <color name="launcherBackground">#25D366</color>
+</resources>
