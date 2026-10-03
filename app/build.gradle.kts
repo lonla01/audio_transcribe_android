@@ -11,8 +11,8 @@ android {
         applicationId = "com.voicetext.transcribe"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1-mvp"
+        versionCode = 3
+        versionName = "0.3.0-whisper"
     }
 
     buildTypes {

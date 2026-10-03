@@ -35,7 +35,7 @@ class TranscribeShareActivity : AppCompatActivity() {
 
         // Fire transcription immediately (in parallel with UI setup below) so the
         // network/inference time and the UI inflation time overlap instead of stacking.
-        val engine = TranscriptionEngine(contentResolver)
+        val engine = TranscriptionEngine(contentResolver, ApiKeyStore(this).apiKey)
         val transcriptionDeferred = lifecycleScope.async(Dispatchers.IO) {
             engine.transcribe(audioUri)
         }
@@ -74,6 +74,13 @@ class TranscribeShareActivity : AppCompatActivity() {
         binding.sendBackBtn.setOnClickListener {
             latestTranscript?.let { sendBackToWhatsApp(it) }
         }
+        binding.openSettingsBtn.setOnClickListener {
+            // Open in the app's main task, not this transient overlay task.
+            startActivity(
+                Intent(this, SettingsActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+            finish()
+        }
     }
 
     private fun showLoadingState() {
@@ -97,6 +104,7 @@ class TranscribeShareActivity : AppCompatActivity() {
         binding.loadingPulse.visibility = View.GONE
         binding.transcriptText.visibility = View.VISIBLE
         binding.actionsRow.visibility = View.GONE
+        binding.openSettingsBtn.visibility = View.VISIBLE
         binding.statusText.text = getString(R.string.status_error)
         binding.transcriptText.text = message
     }

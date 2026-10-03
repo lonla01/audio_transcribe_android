@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.TranscribeApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.TranscribeApp" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/accent</item>
+        <item name="colorPrimaryVariant">@color/accentDark</item>
+        <item name="android:statusBarColor">@color/accentDark</item>
     </style>
 
     <!-- Used only by TranscribeShareActivity: a see-through window so the
          card renders as a floating overlay rather than a full-screen page. -->
-    <style name="Theme.Transparent.Overlay" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.Transparent.Overlay" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowNoTitle">true</item>

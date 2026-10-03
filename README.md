@@ -1,26 +1,27 @@
 # Voice Transcribe — Android MVP
 
-A minimal "share-to-transcribe" app for WhatsApp voice notes. This MVP proves
-out the full plumbing — receiving a shared voice note from WhatsApp's native
-share sheet, showing an instant floating overlay, and sending a transcript
-back — using a **mock transcription engine** so you can test the whole flow
-right away without needing an API key or on-device model yet.
+A minimal "share-to-transcribe" app for WhatsApp voice notes. Share a voice
+note from WhatsApp's native share sheet, get a floating overlay with the
+transcript (via the OpenAI Whisper API), then copy it or send it back.
 
-## What's real vs. mocked
+## Transcription (OpenAI Whisper)
 
-**Real (fully working):**
-- Appears as "Transcribe" in WhatsApp's native long-press → Share menu
-- Reads the actual shared audio bytes from WhatsApp
-- Floating transient overlay UI (fade in/out, not a full-screen app switch)
-- Copy transcript to clipboard
-- Send transcript back into WhatsApp (opens WhatsApp's chat picker)
+`TranscriptionEngine.kt` uploads the shared audio to
+`POST https://api.openai.com/v1/audio/transcriptions` with model `whisper-1`.
 
-**Mocked (see `TranscriptionEngine.kt`):**
-- The actual speech-to-text step. It reads your real audio file, simulates
-  ~1.2s of "processing" time, and returns a placeholder string confirming the
-  file size it read. Swap the body of `transcribe()` for a real Whisper API
-  call or on-device whisper.cpp/JNI call when you're ready — nothing else in
-  the app needs to change.
+- **API key:** open the app → **Settings**, enter your OpenAI API key and
+  tap **Save key** (you can replace or remove it there later). It's stored in
+  app-private SharedPreferences, never baked into the APK. To type a key that
+  lives in an environment variable on your computer straight into the phone,
+  tap the key field and run
+  `adb shell input text "$OPENAI_API_KEY"`.
+- **Formats:** WhatsApp voice notes are Ogg/Opus, often shared as `.opus` or
+  without a name. Whisper picks the decoder from the file extension, so the
+  upload is renamed to a supported extension (`.ogg` for Opus).
+- **Limits:** Whisper accepts files up to 25 MB.
+- **Errors** shown in the overlay: missing/invalid key, no internet, rate
+  limit/quota, OpenAI error messages, and "empty transcription" when Whisper
+  hears no speech.
 
 ## How to open and run
 
@@ -50,8 +51,7 @@ right away without needing an API key or on-device model yet.
 3. Long-press the voice message bubble → tap **Share**.
 4. In the share sheet, find and tap **"Transcribe"** — that's this app.
 5. You should see a floating card appear immediately with a spinner, then
-   (after ~1.2s) a mock transcript confirming it read your real audio file's
-   size in KB.
+   the Whisper transcript (make sure you saved an API key first).
 6. Try **Copy** (check your clipboard) and **Send to WhatsApp** (should jump
    straight into WhatsApp's chat picker with the transcript pre-filled).
 7. Tap outside the card, or press back, to dismiss — should fade out fast.
@@ -59,7 +59,6 @@ right away without needing an API key or on-device model yet.
 ## Known rough edges in this MVP (intentional, for later)
 
 - No history/persistence yet — closing the overlay discards the transcript.
-- No real STT — see `TranscriptionEngine.kt`.
 - No settings (language selection, on-device vs. cloud toggle, etc.)
 - `minSdk 26` — adaptive icons only, no legacy icon densities generated.
 - The "Send to WhatsApp" button re-opens WhatsApp's own chat picker rather
@@ -70,11 +69,14 @@ right away without needing an API key or on-device model yet.
 
 ```
 app/src/main/java/com/voicetext/transcribe/
-  MainActivity.kt              — launcher screen (just instructions)
+  MainActivity.kt              — launcher screen (instructions + Settings link)
+  SettingsActivity.kt          — set / replace / remove the OpenAI API key
+  ApiKeyStore.kt               — persists the OpenAI API key
   TranscribeShareActivity.kt   — the share-target entry point + overlay logic
-  TranscriptionEngine.kt       — mock STT, swap this out for the real thing
+  TranscriptionEngine.kt       — OpenAI Whisper API client
 app/src/main/res/layout/
   activity_main.xml
+  activity_settings.xml
   activity_transcribe_overlay.xml
 app/src/main/res/values/
   strings.xml, colors.xml, themes.xml

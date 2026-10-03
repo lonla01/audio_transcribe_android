@@ -3,13 +3,33 @@
     <string name="app_name">Voice Transcribe</string>
     <string name="transcribe_share_label">Transcribe</string>
 
-    <string name="main_instructions">This app has no screens of its own yet.\n\nTo test it: open WhatsApp, long-press a voice message, tap Share, then pick "Transcribe" from the share sheet.</string>
+    <string name="main_instructions">To transcribe: open WhatsApp, long-press a voice message, tap Share, then pick "Transcribe" from the share sheet.\n\nTranscription uses OpenAI Whisper, so add your OpenAI API key in Settings first.</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_back">‹ Back</string>
+    <string name="api_key_section_title">OpenAI API key</string>
+    <string name="api_key_section_help">Used to transcribe voice notes with OpenAI Whisper. It\'s stored only on this phone.</string>
+    <string name="api_key_hint">API key (sk-…)</string>
+    <string name="action_paste">Paste</string>
+    <string name="action_save_key">Save key</string>
+    <string name="action_replace_key">Replace key</string>
+    <string name="action_remove_key">Remove key</string>
+    <string name="api_key_saved">API key saved</string>
+    <string name="api_key_empty">Enter an API key first</string>
+    <string name="api_key_bad_format">OpenAI keys start with \"sk-\"</string>
+    <string name="api_key_remove_confirm">Remove the saved API key? Transcription won\'t work until you add one again.</string>
+    <string name="api_key_status_set">API key in use: %1$s</string>
+    <string name="api_key_status_missing">No API key set yet. Add one in Settings.</string>
+    <string name="api_key_status_missing_here">No API key saved yet.</string>
+    <string name="clipboard_empty">Clipboard is empty</string>
 
     <string name="status_transcribing">Transcribing…</string>
     <string name="status_done">Transcript</string>
     <string name="status_error">Something went wrong</string>
 
     <string name="action_copy">Copy</string>
+    <string name="action_open_settings">Open Settings</string>
     <string name="action_send_back">Send to WhatsApp</string>
 
     <string name="copied_toast">Transcript copied</string>
