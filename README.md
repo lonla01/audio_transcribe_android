@@ -23,6 +23,24 @@ transcript (via the OpenAI Whisper API), then copy it or send it back.
   limit/quota, OpenAI error messages, and "empty transcription" when Whisper
   hears no speech.
 
+## History and re-sharing
+
+- Each shared voice note is fingerprinted (SHA-256 of the audio bytes) and
+  its transcript saved locally (`TranscriptStore.kt`, plain SQLite). Sharing
+  the same note again shows the saved transcript instantly, with no API call
+  (and no API key needed). The audio itself is never stored.
+- **History** (from the main screen) lists past transcripts; tap one to read,
+  copy or delete it, or clear them all.
+- Transcripts are deleted 30 days after they were last opened (re-shared or
+  viewed in History). Expired ones are purged when the app is used, so no
+  background job is involved.
+- **Copy & close** on the transcript card copies the text and drops you back
+  in the WhatsApp chat: swipe right on the voice note to reply, paste, send.
+  That reply quotes the voice note, so the text stays linked to the audio
+  (and is visible to everyone in the chat).
+- Android backup and device-to-device transfer are disabled: transcripts and
+  the API key stay on the phone.
+
 ## How to open and run
 
 1. Unzip this project.
@@ -58,7 +76,6 @@ transcript (via the OpenAI Whisper API), then copy it or send it back.
 
 ## Known rough edges in this MVP (intentional, for later)
 
-- No history/persistence yet — closing the overlay discards the transcript.
 - No settings (language selection, on-device vs. cloud toggle, etc.)
 - `minSdk 26` — adaptive icons only, no legacy icon densities generated.
 - The "Send to WhatsApp" button re-opens WhatsApp's own chat picker rather
@@ -71,6 +88,8 @@ transcript (via the OpenAI Whisper API), then copy it or send it back.
 app/src/main/java/com/voicetext/transcribe/
   MainActivity.kt              — launcher screen (instructions + Settings link)
   SettingsActivity.kt          — set / replace / remove the OpenAI API key
+  HistoryActivity.kt           — past transcripts (open, copy, delete)
+  TranscriptStore.kt           — SQLite history keyed by audio fingerprint
   ApiKeyStore.kt               — persists the OpenAI API key
   TranscribeShareActivity.kt   — the share-target entry point + overlay logic
   TranscriptionEngine.kt       — OpenAI Whisper API client

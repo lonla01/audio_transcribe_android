@@ -29,6 +29,17 @@
     <string name="status_error">Something went wrong</string>
 
     <string name="action_copy">Copy</string>
+    <string name="action_copy_close">Copy &amp; close</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_close">Close</string>
+    <string name="action_history">History</string>
+    <string name="action_clear_all">Clear all</string>
+    <string name="status_saved">Saved transcript · %1$s</string>
+
+    <string name="history_title">History</string>
+    <string name="history_retention_note">Transcripts are deleted 30 days after you last open them.</string>
+    <string name="history_empty">No transcripts yet.\n\nShare a WhatsApp voice note to Transcribe and it will appear here.</string>
+    <string name="history_clear_confirm">Delete all saved transcripts?</string>
     <string name="action_open_settings">Open Settings</string>
     <string name="action_send_back">Send to WhatsApp</string>
 

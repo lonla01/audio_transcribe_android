@@ -13,11 +13,20 @@ import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.UnknownHostException
+import java.security.MessageDigest
 import java.util.UUID
+
+/** A transcript, and whether it came from History rather than a new Whisper call. */
+data class TranscriptionOutcome(val transcript: Transcript, val fromHistory: Boolean)
 
 /**
  * Transcribes shared audio with the OpenAI Whisper API
  * (POST /v1/audio/transcriptions, model "whisper-1").
+ *
+ * Each audio file is fingerprinted (SHA-256 of its bytes) and looked up in
+ * [store] first: WhatsApp hands out a new URI on every share, but the bytes
+ * of a given voice note are the same, so re-sharing it returns the saved
+ * transcript instantly with no API call. New transcripts are saved.
  *
  * Uses only platform classes (HttpURLConnection + org.json) so the app has no
  * extra networking dependencies. The API key is supplied by the caller (it's
@@ -26,22 +35,29 @@ import java.util.UUID
 class TranscriptionEngine(
     private val contentResolver: ContentResolver,
     private val apiKey: String?,
+    private val store: TranscriptStore,
 ) {
 
-    suspend fun transcribe(audioUri: Uri): Result<String> = withContext(Dispatchers.IO) {
+    suspend fun transcribe(audioUri: Uri): Result<TranscriptionOutcome> = withContext(Dispatchers.IO) {
         try {
-            val key = apiKey?.trim()
-            if (key.isNullOrEmpty()) {
-                return@withContext Result.failure(
-                    IllegalStateException("No OpenAI API key set. Add one in Settings.")
-                )
-            }
-
             val bytes = contentResolver.openInputStream(audioUri)?.use { it.readBytes() }
                 ?: return@withContext Result.failure(IllegalStateException("Could not open shared audio"))
 
             if (bytes.isEmpty()) {
                 return@withContext Result.failure(IllegalStateException("Shared audio file was empty"))
+            }
+
+            store.purgeExpired()
+            val audioHash = sha256Hex(bytes)
+            store.open(audioHash)?.let { saved ->
+                return@withContext Result.success(TranscriptionOutcome(saved, fromHistory = true))
+            }
+
+            val key = apiKey?.trim()
+            if (key.isNullOrEmpty()) {
+                return@withContext Result.failure(
+                    IllegalStateException("No OpenAI API key set. Add one in Settings.")
+                )
             }
             if (bytes.size > MAX_UPLOAD_BYTES) {
                 val sizeMb = bytes.size / (1024 * 1024)
@@ -58,7 +74,7 @@ class TranscriptionEngine(
                     IllegalStateException("Whisper returned an empty transcription. The voice note may be silent or too short.")
                 )
             } else {
-                Result.success(text)
+                Result.success(TranscriptionOutcome(store.save(audioHash, text), fromHistory = false))
             }
         } catch (e: UnknownHostException) {
             Result.failure(IOException("No internet connection", e))
@@ -68,6 +84,9 @@ class TranscriptionEngine(
             Result.failure(e)
         }
     }
+
+    private fun sha256Hex(bytes: ByteArray): String =
+        MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
 
     private fun postToWhisper(key: String, audio: ByteArray, fileName: String, mimeType: String): String {
         val boundary = "VoiceTranscribe" + UUID.randomUUID().toString().replace("-", "")

@@ -7,8 +7,8 @@ import com.voicetext.transcribe.databinding.ActivityMainBinding
 
 /**
  * Launcher screen. Users mostly reach the app via WhatsApp's share sheet (see
- * TranscribeShareActivity); this screen explains that and links to Settings,
- * where the OpenAI API key used for Whisper transcription is managed.
+ * TranscribeShareActivity); this screen explains that and links to History
+ * (past transcripts) and Settings (the OpenAI API key used for Whisper).
  */
 class MainActivity : AppCompatActivity() {
 
@@ -19,6 +19,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.historyBtn.setOnClickListener {
+            startActivity(Intent(this, HistoryActivity::class.java))
+        }
         binding.settingsBtn.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }

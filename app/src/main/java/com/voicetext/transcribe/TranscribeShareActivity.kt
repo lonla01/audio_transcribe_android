@@ -35,7 +35,7 @@ class TranscribeShareActivity : AppCompatActivity() {
 
         // Fire transcription immediately (in parallel with UI setup below) so the
         // network/inference time and the UI inflation time overlap instead of stacking.
-        val engine = TranscriptionEngine(contentResolver, ApiKeyStore(this).apiKey)
+        val engine = TranscriptionEngine(contentResolver, ApiKeyStore(this).apiKey, TranscriptStore.get(this))
         val transcriptionDeferred = lifecycleScope.async(Dispatchers.IO) {
             engine.transcribe(audioUri)
         }
@@ -45,9 +45,9 @@ class TranscribeShareActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val result = transcriptionDeferred.await()
-            result.onSuccess { transcript ->
-                latestTranscript = transcript
-                showTranscriptState(transcript)
+            result.onSuccess { outcome ->
+                latestTranscript = outcome.transcript.text
+                showTranscriptState(outcome)
             }.onFailure { error ->
                 showErrorState(error.message ?: getString(R.string.error_generic))
             }
@@ -68,8 +68,13 @@ class TranscribeShareActivity : AppCompatActivity() {
         // Tapping the scrim outside the card dismisses instantly, like a chip, not a full app.
         binding.scrim.setOnClickListener { dismissFast() }
 
+        // Copy & close drops the user back in the WhatsApp chat, at the voice
+        // note, ready to swipe-reply to it and paste the transcript.
         binding.copyBtn.setOnClickListener {
-            latestTranscript?.let { copyToClipboard(it) }
+            latestTranscript?.let {
+                copyToClipboard(it)
+                dismissFast()
+            }
         }
         binding.sendBackBtn.setOnClickListener {
             latestTranscript?.let { sendBackToWhatsApp(it) }
@@ -92,12 +97,16 @@ class TranscribeShareActivity : AppCompatActivity() {
         binding.card.animate().alpha(1f).setDuration(120).start()
     }
 
-    private fun showTranscriptState(transcript: String) {
+    private fun showTranscriptState(outcome: TranscriptionOutcome) {
         binding.loadingPulse.visibility = View.GONE
         binding.transcriptText.visibility = View.VISIBLE
         binding.actionsRow.visibility = View.VISIBLE
-        binding.statusText.text = getString(R.string.status_done)
-        binding.transcriptText.text = transcript
+        binding.statusText.text = if (outcome.fromHistory) {
+            getString(R.string.status_saved, formatDate(this, outcome.transcript.createdAt))
+        } else {
+            getString(R.string.status_done)
+        }
+        binding.transcriptText.text = outcome.transcript.text
     }
 
     private fun showErrorState(message: String) {
