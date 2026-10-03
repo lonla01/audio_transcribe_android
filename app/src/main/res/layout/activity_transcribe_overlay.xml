@@ -42,14 +42,23 @@
                 android:layout_gravity="center_horizontal"
                 style="?android:attr/progressBarStyle" />
 
-            <TextView
-                android:id="@+id/transcriptText"
+            <com.voicetext.transcribe.MaxHeightScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:textSize="15sp"
-                android:textColor="@color/textPrimary"
-                android:visibility="gone" />
+                android:fadeScrollbars="false"
+                android:scrollbarStyle="outsideOverlay">
+
+                <TextView
+                    android:id="@+id/transcriptText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textIsSelectable="true"
+                    android:textSize="15sp"
+                    android:textColor="@color/textPrimary"
+                    android:visibility="gone" />
+
+            </com.voicetext.transcribe.MaxHeightScrollView>
 
             <LinearLayout
                 android:id="@+id/actionsRow"
@@ -61,15 +70,17 @@
 
                 <Button
                     android:id="@+id/copyBtn"
+                    android:textColor="@color/borderless_button_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
-                    android:text="@string/action_copy"
+                    android:text="@string/action_copy_close"
                     style="?android:attr/borderlessButtonStyle" />
 
                 <Button
                     android:id="@+id/sendBackBtn"
+                    android:textColor="@color/borderless_button_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -80,6 +91,7 @@
 
             <Button
                 android:id="@+id/openSettingsBtn"
+                android:textColor="@color/borderless_button_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
